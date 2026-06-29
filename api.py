@@ -490,7 +490,6 @@ def delete_invoice(invoice_id: int):
 # ===========================
 # STATS
 # ===========================
-
 @app.get("/stats")
 def stats():
 
@@ -547,6 +546,7 @@ def stats():
         "duplicate_invoices_caught": duplicate_invoices
 
     }
+
 # ===========================
 # UPDATE REVIEW STATUS
 # ===========================
@@ -614,55 +614,61 @@ def duplicate_candidates():
 
     db = SessionLocal()
 
-    invoices = db.query(Invoice).filter(
-        Invoice.deleted_at == None
-    ).all()
+    try:
 
-    db.query(DuplicateCandidate).delete()
+        invoices = (
+            db.query(Invoice)
+            .filter(Invoice.deleted_at == None)
+            .all()
+        )
 
-    db.commit()
+        db.query(DuplicateCandidate).delete()
+        db.commit()
 
-    for i in range(len(invoices)):
-        for j in range(i + 1, len(invoices)):
+        for i in range(len(invoices)):
+            for j in range(i + 1, len(invoices)):
 
-            if (
-                invoices[i].invoice_date != invoices[j].invoice_date
-                and
-                invoices[i].total_amount != invoices[j].total_amount
-            ):
-                continue
+                # Compare only plausible pairs
+                if (
+                    invoices[i].invoice_date != invoices[j].invoice_date
+                    and
+                    invoices[i].total_amount != invoices[j].total_amount
+                ):
+                    continue
 
-            comparison = is_near_duplicate(
+                comparison = is_near_duplicate(
 
-                invoices[i].vendor_normalized,
-                invoices[j].vendor_normalized,
+                    invoices[i].vendor_normalized,
+                    invoices[j].vendor_normalized,
 
-                invoices[i].invoice_number,
-                invoices[j].invoice_number
-
-            )
-
-            if comparison["possible_duplicate"]:
-
-                candidate = DuplicateCandidate(
-
-                    invoice1_id=invoices[i].id,
-
-                    invoice2_id=invoices[j].id,
-
-                    vendor_score=comparison["vendor_score"],
-
-                    invoice_score=comparison["invoice_score"],
-
-                    status="pending"
+                    invoices[i].invoice_number,
+                    invoices[j].invoice_number
 
                 )
 
-                db.add(candidate)
+                if comparison["possible_duplicate"]:
 
-    db.commit()
+                    candidate = DuplicateCandidate(
 
-    return db.query(DuplicateCandidate).all()
+                        invoice1_id=invoices[i].id,
+                        invoice2_id=invoices[j].id,
+
+                        vendor_score=comparison["vendor_score"],
+                        invoice_score=comparison["invoice_score"],
+
+                        status="pending"
+
+                    )
+
+                    db.add(candidate)
+
+        db.commit()
+
+        return db.query(DuplicateCandidate).all()
+
+    finally:
+        db.close()
+
 # RESOLVE DUPLICATES
 @app.post("/duplicates/{candidate_id}/resolve")
 def resolve_duplicate(
@@ -737,9 +743,22 @@ def resolve_duplicate(
 # ===========================
 # EXPORT CSV
 # ===========================
-
 @app.get("/export")
-def export_csv():
+def export_csv(
+
+    vendor: str | None = None,
+
+    currency: str | None = None,
+
+    start_date: str | None = None,
+
+    end_date: str | None = None,
+
+    min_amount: float | None = None,
+
+    max_amount: float | None = None
+
+):
 
     db = SessionLocal()
 
@@ -747,11 +766,62 @@ def export_csv():
 
     query = query.filter(
         Invoice.deleted_at == None
-   )
+    )
 
     query = query.filter(
         Invoice.review_status != "merged"
     )
+
+    if vendor:
+
+        pattern = "%" + vendor.upper() + "%"
+
+        query = query.filter(
+            Invoice.vendor_normalized.like(
+                bindparam(
+                    "vendor_pattern",
+                    value=pattern
+                )
+            )
+        )
+
+    if currency:
+
+        query = query.filter(
+            Invoice.currency == currency
+        )
+
+    if start_date:
+
+        start = parse_date(start_date)
+
+        if start:
+
+            query = query.filter(
+                Invoice.invoice_date >= start
+            )
+
+    if end_date:
+
+        end = parse_date(end_date)
+
+        if end:
+
+            query = query.filter(
+                Invoice.invoice_date <= end
+            )
+
+    if min_amount is not None:
+
+        query = query.filter(
+            Invoice.total_amount >= min_amount
+        )
+
+    if max_amount is not None:
+
+        query = query.filter(
+            Invoice.total_amount <= max_amount
+        )
 
     invoices = query.all()
 
@@ -782,7 +852,7 @@ def export_csv():
 
             inv.vendor_normalized,
 
-            inv.invoice_date,
+            inv.invoice_date.strftime("%Y-%m-%d") if inv.invoice_date else "",
 
             inv.total_amount,
 
@@ -795,13 +865,20 @@ def export_csv():
     output.seek(0)
 
     return StreamingResponse(
+
         iter([output.getvalue()]),
+
         media_type="text/csv",
+
         headers={
+
             "Content-Disposition":
             "attachment; filename=invoices.csv"
+
         }
+
     )
+
 
 
 # ===========================

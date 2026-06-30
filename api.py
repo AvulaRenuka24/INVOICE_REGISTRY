@@ -2,7 +2,10 @@ import os
 import csv
 import io
 from datetime import datetime
-from db import DuplicateCandidate
+
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi import Request
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -36,6 +39,13 @@ app = FastAPI(
     title="Invoice Registry API",
     version="1.0"
 )
+templates = Jinja2Templates(directory="templates")
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
+)
 
 UPLOAD_FOLDER = "uploads"
 
@@ -45,48 +55,14 @@ init_db()
 
 
 @app.get("/", response_class=HTMLResponse)
-def home():
+def home(request: Request):
 
-    return """
-    <html>
-
-    <head>
-        <title>Invoice Registry</title>
-    </head>
-
-    <body style="font-family:Arial;padding:40px">
-
-        <h1>Invoice Registry API</h1>
-
-        <h2>Internship Assignment</h2>
-
-        <ul>
-
-            <li>Upload Invoice</li>
-
-            <li>Duplicate Detection</li>
-
-            <li>Search</li>
-
-            <li>Soft Delete</li>
-
-            <li>Review</li>
-
-            <li>CSV Export</li>
-
-        </ul>
-
-        <a href="/docs">
-
-        Swagger UI
-
-        </a>
-
-    </body>
-
-    </html>
-
-    """
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request
+        }
+    )
 
 
 @app.post("/upload")
@@ -116,7 +92,7 @@ async def upload_invoice(file: UploadFile = File(...)):
 
                 "document_id": duplicate.id,
 
-                "uploaded_at": duplicate.uploaded_at
+                "uploaded_at": duplicate.uploaded_at.isoformat()
 
             }
 

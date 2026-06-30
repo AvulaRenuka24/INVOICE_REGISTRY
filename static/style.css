@@ -1,0 +1,397 @@
+/* ===========================
+   GLOBAL
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+body{
+
+    background:#fff7fb;
+
+    color:#444;
+
+}
+
+/* ===========================
+   HEADER
+=========================== */
+
+header{
+
+    background:linear-gradient(135deg,#ffd6e8,#ffc2dc);
+
+    padding:28px;
+
+    text-align:center;
+
+    box-shadow:0 4px 15px rgba(255,105,180,.18);
+
+}
+
+header h1{
+
+    color:#d63384;
+
+    font-size:34px;
+
+    margin-bottom:10px;
+
+}
+
+header p{
+
+    color:#8d3a62;
+
+    font-size:17px;
+
+}
+
+/* ===========================
+   CONTAINER
+=========================== */
+
+.container{
+
+    width:95%;
+
+    max-width:1500px;
+
+    margin:30px auto;
+
+}
+
+/* ===========================
+   CARDS
+=========================== */
+
+.card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    margin-bottom:25px;
+
+    box-shadow:0 8px 20px rgba(255,182,193,.25);
+
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 25px rgba(255,105,180,.22);
+
+}
+
+.card h2{
+
+    color:#d63384;
+
+    margin-bottom:18px;
+
+    font-size:22px;
+
+}
+/* ===========================
+   INPUTS
+=========================== */
+
+input,
+select{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-bottom:14px;
+
+    border:2px solid #ffd0e4;
+
+    border-radius:10px;
+
+    background:white;
+
+    font-size:15px;
+
+    transition:.3s;
+
+}
+
+input:focus,
+select:focus{
+
+    outline:none;
+
+    border-color:#ff69b4;
+
+    box-shadow:0 0 8px rgba(255,105,180,.25);
+
+}
+
+/* ===========================
+   FILTER GRID
+=========================== */
+
+.filters{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:15px;
+
+}
+/* ===========================
+   BUTTONS
+=========================== */
+
+button{
+
+    background:#ff69b4;
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:12px 22px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    margin-right:10px;
+
+}
+
+button:hover{
+
+    background:#e754a3;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(255,105,180,.30);
+
+}
+
+/* ===========================
+   STATISTICS
+=========================== */
+
+#stats{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+}
+
+.stat-card{
+
+    background:#fff0f7;
+
+    border-left:8px solid #ff69b4;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    box-shadow:0 5px 15px rgba(255,182,193,.25);
+
+}
+
+.stat-card h3{
+
+    color:#d63384;
+
+    font-size:18px;
+
+}
+
+.stat-card p{
+
+    margin-top:10px;
+
+    font-size:32px;
+
+    color:#ff1493;
+
+    font-weight:bold;
+
+}
+/* ===========================
+   TABLES
+=========================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:10px;
+
+    overflow:hidden;
+
+    border-radius:12px;
+
+}
+
+thead{
+
+    background:#ff8fc4;
+
+}
+
+thead th{
+
+    color:white;
+
+    padding:14px;
+
+    text-align:center;
+
+    font-size:15px;
+
+}
+
+tbody td{
+
+    padding:14px;
+
+    text-align:center;
+
+    border-bottom:1px solid #ffe3ef;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#fff8fc;
+
+}
+
+tbody tr:hover{
+
+    background:#ffeaf4;
+
+    transition:.3s;
+
+}
+/* ===========================
+   STATUS BADGES
+=========================== */
+
+.status-processed{
+
+    background:#d4edda;
+
+    color:#155724;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+}
+
+.status-failed{
+
+    background:#f8d7da;
+
+    color:#721c24;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+}
+
+.status-pending{
+
+    background:#fff3cd;
+
+    color:#856404;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+}
+
+.status-merged{
+
+    background:#e7d6ff;
+
+    color:#6f42c1;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+}
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+    .filters{
+
+        grid-template-columns:1fr;
+
+    }
+
+    table{
+
+        font-size:13px;
+
+    }
+
+    button{
+
+        width:100%;
+
+        margin-bottom:10px;
+
+    }
+
+}
+
+/* ===========================
+   MESSAGES
+=========================== */
+
+#uploadMessage{
+
+    margin-top:15px;
+
+    color:#d63384;
+
+    font-weight:600;
+
+}

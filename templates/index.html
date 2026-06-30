@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Invoice Registry Dashboard</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>📄 Invoice Registry Dashboard</h1>
+
+        <p>Invoice Upload, Search, Duplicate Detection & Reports</p>
+
+    </header>
+
+    <div class="container">
+
+        <!-- Upload Section -->
+
+        <section class="card">
+
+            <h2>Upload Invoice</h2>
+
+            <input
+                type="file"
+                id="pdfFile">
+
+            <button id="uploadBtn">
+
+                Upload PDF
+
+            </button>
+
+            <p id="uploadMessage"></p>
+
+        </section>
+
+        <!-- Statistics -->
+
+        <section class="card">
+
+            <h2>Statistics</h2>
+
+            <div id="stats">
+
+                Loading...
+
+            </div>
+
+        </section>
+
+        <!-- Uploaded Documents -->
+
+        <section class="card">
+
+            <h2>Uploaded Documents</h2>
+
+            <table id="documentsTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Filename</th>
+
+                        <th>Status</th>
+
+                        <th>Type</th>
+
+                        <th>Uploaded At</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Search & Filters -->
+
+        <section class="card">
+
+            <h2>Search & Filters</h2>
+
+            <div class="filters">
+
+                <input
+                    type="text"
+                    id="searchText"
+                    placeholder="Vendor or Invoice Number">
+
+                <input
+                    type="text"
+                    id="vendorSearch"
+                    placeholder="Vendor">
+
+                <select id="currency">
+
+                    <option value="">All Currency</option>
+
+                    <option value="USD">USD</option>
+
+                </select>
+
+                <input
+                    type="date"
+                    id="dateFrom">
+
+                <input
+                    type="date"
+                    id="dateTo">
+
+                <input
+                    type="number"
+                    id="amountMin"
+                    placeholder="Minimum Amount">
+
+                <input
+                    type="number"
+                    id="amountMax"
+                    placeholder="Maximum Amount">
+
+            </div>
+
+            <br>
+
+            <button id="searchBtn">
+
+                Apply Filters
+
+            </button>
+
+            <button id="resetBtn">
+
+                Reset
+
+            </button>
+
+        </section>
+
+        <!-- Invoice Table -->
+
+        <section class="card">
+
+            <h2>Invoices</h2>
+
+            <table id="invoiceTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Invoice No</th>
+
+                        <th>Vendor</th>
+
+                        <th>Date</th>
+
+                        <th>Amount</th>
+
+                        <th>Currency</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Duplicate Candidates -->
+
+        <section class="card">
+
+            <h2>Duplicate Candidates</h2>
+
+            <table id="duplicateTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Candidate ID</th>
+
+                        <th>Invoice 1</th>
+
+                        <th>Invoice 2</th>
+
+                        <th>Vendor Score</th>
+
+                        <th>Invoice Score</th>
+
+                        <th>Status</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+        <!-- Export -->
+
+        <section class="card">
+
+            <button id="exportBtn">
+
+                Export CSV
+
+            </button>
+
+        </section>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+
+</body>
+
+</html>

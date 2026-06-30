@@ -1,0 +1,22 @@
+database:
+  url: sqlite:///registry.db
+
+server:
+  host: 127.0.0.1
+  port: 8000
+
+upload:
+  folder: uploads
+
+reports:
+  folder: reports
+
+duplicate_detection:
+  vendor_threshold: 90
+  invoice_threshold: 95
+
+currency:
+  default: USD
+
+logging:
+  level: INFO

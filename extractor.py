@@ -50,18 +50,48 @@ def find_invoice_number(text: str) -> Optional[str]:
 
 def find_vendor(text: str) -> Optional[str]:
 
+    # First, look for "Vendor:"
+    match = re.search(
+        r"Vendor\s*:\s*(.+)",
+        text,
+        re.IGNORECASE
+    )
+
+    if match:
+        return match.group(1).strip()
+
+    # Fallback if Vendor: is missing
+    skip_words = {
+        "INVOICE",
+        "TAX INVOICE",
+        "RECEIPT",
+        "BILL"
+    }
+
     lines = text.splitlines()
 
-    for line in lines[:10]:
+    for line in lines[:15]:
 
         line = line.strip()
 
-        if len(line) > 3:
+        if not line:
+            continue
 
-            return line
+        if line.upper() in skip_words:
+            continue
+
+        if line.lower().startswith("invoice"):
+            continue
+
+        if line.lower().startswith("date"):
+            continue
+
+        if line.lower().startswith("total"):
+            continue
+
+        return line
 
     return None
-
 
 def find_total_amount(text: str) -> Optional[str]:
 

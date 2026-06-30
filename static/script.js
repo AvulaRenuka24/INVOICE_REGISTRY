@@ -1,35 +1,18 @@
-// ============================================
-// Invoice Registry Dashboard
-// ============================================
-
-
-// ============================================
+// ======================================
 // Helper Functions
-// ============================================
+// ======================================
 
 function formatDate(dateString) {
 
-    if (!dateString) {
+    if (!dateString) return "-";
 
-        return "-";
-
-    }
-
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("en-GB");
+    return new Date(dateString).toLocaleDateString("en-GB");
 
 }
 
 function formatAmount(amount) {
 
-    if (amount === null || amount === undefined) {
-
-        return "-";
-
-    }
-
-    return amount;
+    return amount ?? "-";
 
 }
 
@@ -37,16 +20,15 @@ function showMessage(message, success = true) {
 
     const box = document.getElementById("uploadMessage");
 
-    box.innerHTML = message;
+    box.textContent = message;
 
-    box.style.color = success ? "#d63384" : "#dc3545";
+    box.style.color = success ? "green" : "red";
 
 }
 
-
-// ============================================
+// ======================================
 // Statistics
-// ============================================
+// ======================================
 
 async function loadStats() {
 
@@ -57,56 +39,44 @@ async function loadStats() {
     document.getElementById("stats").innerHTML = `
 
         <div class="stat-card">
-            <h3>📄 Documents</h3>
+            <h3>Documents</h3>
             <p>${data.documents}</p>
         </div>
 
         <div class="stat-card">
-            <h3>🧾 Invoices</h3>
+            <h3>Invoices</h3>
             <p>${data.unique_invoices}</p>
         </div>
 
         <div class="stat-card">
-            <h3>✅ Processed</h3>
+            <h3>Processed</h3>
             <p>${data.processed_documents}</p>
         </div>
 
         <div class="stat-card">
-            <h3>❌ Failed</h3>
+            <h3>Failed</h3>
             <p>${data.failed_documents}</p>
-        </div>
-
-        <div class="stat-card">
-            <h3>📁 Duplicate Files</h3>
-            <p>${data.duplicate_files_blocked}</p>
-        </div>
-
-        <div class="stat-card">
-            <h3>🔁 Duplicate Invoices</h3>
-            <p>${data.duplicate_invoices_caught}</p>
         </div>
 
     `;
 
 }
 
-
-
-// ============================================
-// Documents Table
-// ============================================
+// ======================================
+// Documents
+// ======================================
 
 async function loadDocuments() {
 
     const response = await fetch("/documents");
 
-    const documents = await response.json();
+    const docs = await response.json();
 
     const tbody = document.querySelector("#documentsTable tbody");
 
     tbody.innerHTML = "";
 
-    documents.forEach(doc => {
+    docs.forEach(doc => {
 
         tbody.innerHTML += `
 
@@ -118,8 +88,6 @@ async function loadDocuments() {
 
             <td>${doc.status}</td>
 
-            <td>${doc.doc_type}</td>
-
             <td>${formatDate(doc.uploaded_at)}</td>
 
         </tr>
@@ -130,142 +98,13 @@ async function loadDocuments() {
 
 }
 
-
-
-// ============================================
-// Upload PDF
-// ============================================
-
-document.getElementById("uploadBtn").onclick = async () => {
-
-    const fileInput = document.getElementById("pdfFile");
-
-    if (fileInput.files.length === 0) {
-
-        alert("Please select a PDF.");
-
-        return;
-
-    }
-
-    const formData = new FormData();
-
-    formData.append(
-
-        "file",
-
-        fileInput.files[0]
-
-    );
-
-    const response = await fetch(
-
-        "/upload",
-
-        {
-
-            method: "POST",
-
-            body: formData
-
-        }
-
-    );
-
-    const result = await response.json();
-
-    if (response.ok) {
-
-        showMessage(
-
-            "✅ Invoice uploaded successfully."
-
-        );
-
-    }
-
-    else {
-
-        if (result.detail.message) {
-
-            showMessage(
-
-                "❌ " + result.detail.message,
-
-                false
-
-            );
-
-        }
-
-        else {
-
-            showMessage(
-
-                "❌ Upload failed.",
-
-                false
-
-            );
-
-        }
-
-    }
-
-    loadStats();
-
-    loadDocuments();
-
-    loadInvoices();
-
-    loadDuplicates();
-
-};
-
-// ============================================
-// Load Invoices
-// ============================================
+// ======================================
+// Invoices
+// ======================================
 
 async function loadInvoices() {
 
-    let url = "/invoices?limit=100";
-
-    const vendor = document.getElementById("vendorSearch")?.value;
-
-    const invoice = document.getElementById("searchText")?.value;
-
-    const currency = document.getElementById("currency")?.value;
-
-    const dateFrom = document.getElementById("dateFrom")?.value;
-
-    const dateTo = document.getElementById("dateTo")?.value;
-
-    const amountMin = document.getElementById("amountMin")?.value;
-
-    const amountMax = document.getElementById("amountMax")?.value;
-
-    if (vendor)
-        url += "&vendor=" + encodeURIComponent(vendor);
-
-    if (invoice)
-        url += "&invoice_number=" + encodeURIComponent(invoice);
-
-    if (currency)
-        url += "&currency=" + currency;
-
-    if (dateFrom)
-        url += "&start_date=" + dateFrom;
-
-    if (dateTo)
-        url += "&end_date=" + dateTo;
-
-    if (amountMin)
-        url += "&min_amount=" + amountMin;
-
-    if (amountMax)
-        url += "&max_amount=" + amountMax;
-
-    const response = await fetch(url);
+    const response = await fetch("/invoices?limit=100");
 
     const data = await response.json();
 
@@ -289,26 +128,6 @@ async function loadInvoices() {
 
             <td>${formatAmount(inv.total_amount)}</td>
 
-            <td>${inv.currency ?? "-"}</td>
-
-            <td>${inv.review_status}</td>
-
-            <td>
-
-                <button onclick="viewInvoice(${inv.id})">
-
-                    View
-
-                </button>
-
-                <button onclick="deleteInvoice(${inv.id})">
-
-                    Delete
-
-                </button>
-
-            </td>
-
         </tr>
 
         `;
@@ -316,111 +135,61 @@ async function loadInvoices() {
     });
 
 }
+// ======================================
+// Upload Invoice
+// ======================================
 
+document.getElementById("uploadBtn").onclick = async () => {
 
+    const fileInput = document.getElementById("pdfFile");
 
-// ============================================
-// View Invoice
-// ============================================
+    if (fileInput.files.length === 0) {
 
-async function viewInvoice(id) {
-
-    const response = await fetch("/invoices/" + id);
-
-    const invoice = await response.json();
-
-    alert(
-
-`Invoice ID : ${invoice.id}
-
-Invoice Number : ${invoice.invoice_number}
-
-Vendor : ${invoice.vendor_name}
-
-Date : ${formatDate(invoice.invoice_date)}
-
-Amount : ${formatAmount(invoice.total_amount)}
-
-Currency : ${invoice.currency}
-
-Status : ${invoice.review_status}`
-
-    );
-
-}
-
-
-
-// ============================================
-// Delete Invoice
-// ============================================
-
-async function deleteInvoice(id) {
-
-    if (!confirm("Delete this invoice?")) {
+        alert("Please select a PDF.");
 
         return;
 
     }
 
-    await fetch(
+    const formData = new FormData();
 
-        "/invoices/" + id,
+    formData.append("file", fileInput.files[0]);
 
-        {
+    const response = await fetch("/upload", {
 
-            method: "DELETE"
+        method: "POST",
+
+        body: formData
+
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+
+        showMessage("Invoice uploaded successfully.");
+
+    } else {
+
+        if (result.detail && result.detail.message) {
+
+            showMessage(result.detail.message, false);
+
+        } else {
+
+            showMessage("Upload failed.", false);
 
         }
 
-    );
+    }
 
-    loadInvoices();
-
-    loadStats();
-
-}
-
-
-
-// ============================================
-// Search Button
-// ============================================
-
-document.getElementById("searchBtn").onclick = () => {
-
-    loadInvoices();
+    await refreshDashboard();
 
 };
 
-
-
-// ============================================
-// Reset Filters
-// ============================================
-
-document.getElementById("resetBtn").onclick = () => {
-
-    document.getElementById("searchText").value = "";
-
-    document.getElementById("vendorSearch").value = "";
-
-    document.getElementById("currency").value = "";
-
-    document.getElementById("dateFrom").value = "";
-
-    document.getElementById("dateTo").value = "";
-
-    document.getElementById("amountMin").value = "";
-
-    document.getElementById("amountMax").value = "";
-
-    loadInvoices();
-
-};
-// ============================================
+// ======================================
 // Duplicate Candidates
-// ============================================
+// ======================================
 
 async function loadDuplicates() {
 
@@ -438,9 +207,9 @@ async function loadDuplicates() {
 
         <tr>
 
-            <td colspan="7">
+            <td colspan="5">
 
-                No duplicate candidates found.
+                No duplicate candidates found
 
             </td>
 
@@ -452,39 +221,21 @@ async function loadDuplicates() {
 
     }
 
-    duplicates.forEach(candidate => {
+    duplicates.slice(0, 20).forEach(item => {
 
         tbody.innerHTML += `
 
         <tr>
 
-            <td>${candidate.id}</td>
+            <td>${item.id}</td>
 
-            <td>${candidate.invoice1_id}</td>
+            <td>${item.invoice1_id}</td>
 
-            <td>${candidate.invoice2_id}</td>
+            <td>${item.invoice2_id}</td>
 
-            <td>${candidate.vendor_score}</td>
+            <td>${item.vendor_score}</td>
 
-            <td>${candidate.invoice_score}</td>
-
-            <td>${candidate.status}</td>
-
-            <td>
-
-                <button onclick="mergeDuplicate(${candidate.id})">
-
-                    Merge
-
-                </button>
-
-                <button onclick="notDuplicate(${candidate.id})">
-
-                    Not Duplicate
-
-                </button>
-
-            </td>
+            <td>${item.status}</td>
 
         </tr>
 
@@ -493,132 +244,19 @@ async function loadDuplicates() {
     });
 
 }
-
-
-
-// ============================================
-// Merge Duplicate
-// ============================================
-
-async function mergeDuplicate(id) {
-
-    if (!confirm("Merge these invoices?")) {
-
-        return;
-
-    }
-
-    const response = await fetch(
-
-        "/duplicates/" + id + "/resolve?action=merge",
-
-        {
-
-            method: "POST"
-
-        }
-
-    );
-
-    const result = await response.json();
-
-    alert(result.message);
-
-    loadDuplicates();
-
-    loadInvoices();
-
-    loadStats();
-
-}
-
-
-
-// ============================================
-// Mark Not Duplicate
-// ============================================
-
-async function notDuplicate(id) {
-
-    const response = await fetch(
-
-        "/duplicates/" + id + "/resolve?action=not_duplicate",
-
-        {
-
-            method: "POST"
-
-        }
-
-    );
-
-    const result = await response.json();
-
-    alert(result.message);
-
-    loadDuplicates();
-
-}
-
-
-
-// ============================================
-// Auto Refresh Duplicate Table
-// ============================================
-
-setInterval(() => {
-
-    loadDuplicates();
-
-}, 10000);
-
-// ============================================
+// ======================================
 // Export CSV
-// ============================================
+// ======================================
 
 document.getElementById("exportBtn").onclick = () => {
 
-    let url = "/export?";
-
-    const vendor = document.getElementById("vendorSearch").value;
-
-    const currency = document.getElementById("currency").value;
-
-    const dateFrom = document.getElementById("dateFrom").value;
-
-    const dateTo = document.getElementById("dateTo").value;
-
-    const amountMin = document.getElementById("amountMin").value;
-
-    const amountMax = document.getElementById("amountMax").value;
-
-    if (vendor)
-        url += "&vendor=" + encodeURIComponent(vendor);
-
-    if (currency)
-        url += "&currency=" + currency;
-
-    if (dateFrom)
-        url += "&start_date=" + dateFrom;
-
-    if (dateTo)
-        url += "&end_date=" + dateTo;
-
-    if (amountMin)
-        url += "&min_amount=" + amountMin;
-
-    if (amountMax)
-        url += "&max_amount=" + amountMax;
-
-    window.location = url;
+    window.location = "/export";
 
 };
 
-
-
-// ============================================
+// ======================================
 // Refresh Dashboard
-// ============================================
+// ======================================
 
 async function refreshDashboard() {
 
@@ -632,11 +270,9 @@ async function refreshDashboard() {
 
 }
 
-
-
-// ============================================
+// ======================================
 // Initialize Dashboard
-// ============================================
+// ======================================
 
 window.onload = async () => {
 
@@ -644,22 +280,8 @@ window.onload = async () => {
 
 };
 
+// ======================================
+// Console
+// ======================================
 
-
-// ============================================
-// Auto Refresh Dashboard
-// ============================================
-
-setInterval(() => {
-
-    refreshDashboard();
-
-}, 30000);
-
-
-
-// ============================================
-// Console Message
-// ============================================
-
-console.log("Invoice Registry Dashboard Loaded Successfully");
+console.log("Invoice Registry Dashboard Loaded");
